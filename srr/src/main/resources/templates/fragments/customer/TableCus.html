@@ -3,30 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modify Reservation</title>
+  <title>Available Tables</title>
 </head>
 <body>
-  <h1>My Reservations</h1>
+  <h1>Available Tables</h1>
   <table border="1">
     <thead>
       <tr>
-        <th>Reservation ID</th>
         <th>Table ID</th>
-        <th>Time</th>
+        <th>Capacity</th>
         <th>Status</th>
-        <th>Actions</th>
+        <th>Reserve</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Example Reservation Row -->
+      <!-- Example Table Row -->
       <tr>
-        <td>123</td>
         <td>1</td>
-        <td>7:00 PM</td>
-        <td>Confirmed</td>
-        <td>
-          <button onclick="location.href='customer-update-reservation.html'">Update</button>
-        </td>
+        <td>4</td>
+        <td>Available</td>
+        <td><button onclick="location.href='customer-reservation-form.html'">Reserve Now</button></td>
       </tr>
       <!-- Add more rows dynamically -->
     </tbody>
