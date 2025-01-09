@@ -1,40 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-</head>
-<body>
-  <h1>Reservations Dashboard</h1>
-  <table border="1">
+<div th:fragment="content">
+  <a th:href="@{/formAdmin}" class="btn btn-primary">Create Table</a>
+  This is admin table managment page
+  <table class="table">
     <thead>
       <tr>
-        <th>Reservation ID</th>
-        <th>Customer Name</th>
-        <th>Contact</th>
-        <th>Table ID</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th scope="col">Table ID: </th>
+        <th scope="col">Customer Name:</th>
+        <th scope="col">Customer Phone number:</th>
+        <th scope="col">Reservation time:</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Example Reservation Row -->
-      <tr>
-        <td>123</td>
-        <td>John Doe</td>
-        <td>123-456-7890</td>
-        <td>1</td>
-        <td>7:00 PM</td>
-        <td>Confirmed</td>
+      <tr th:each="reservations : ${reservation}">
+        <td th:text="${reservations.getTableId()}"></td>
+        <td th:text="${reservations.getCustomerName()}"></td>
+        <td th:text="${reservations.getPhoneNumber()}"></td>
+        <td th:text="${reservations.getTime()}"></td>
         <td>
-          <button>Delete</button>
-          <button>Update</button>
+          <a th:href="@{/update/{tableId}(id=${reservations.getTableId()})}" class="btn btn-warning">Update</a>
+          <a th:href="@{/delete/{tableId}(id=${reservations.getTableId()})}" class="btn btn-danger">Delete</a>
         </td>
       </tr>
-      <!-- Add more rows dynamically -->
     </tbody>
   </table>
-</body>
-</html>
+</div>

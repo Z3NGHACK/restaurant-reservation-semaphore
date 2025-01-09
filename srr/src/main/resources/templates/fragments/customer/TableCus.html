@@ -1,31 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Available Tables</title>
-</head>
-<body>
-  <h1>Available Tables</h1>
-  <table border="1">
+<div th:fragment="content">
+  <a th:href="@{/formAdmin}" class="btn btn-primary">Create Table</a>
+  This is customer table managment page
+  <table class="table">
     <thead>
       <tr>
-        <th>Table ID</th>
-        <th>Capacity</th>
-        <th>Status</th>
-        <th>Reserve</th>
+        <th scope="col">Table ID: </th>
+        <th scope="col">Customer Name:</th>
+        <th scope="col">Customer Phone number:</th>
+        <th scope="col">Reservation time:</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Example Table Row -->
-      <tr>
-        <td>1</td>
-        <td>4</td>
-        <td>Available</td>
-        <td><button onclick="location.href='customer-reservation-form.html'">Reserve Now</button></td>
+      <tr th:each="reservations : ${reservation}">
+        <td th:text="${reservations.getTableId()}"></td>
+        <td th:text="${reservations.getCustomerName()}"></td>
+        <td th:text="${reservations.getPhoneNumber()}"></td>
+        <td th:text="${reservations.getTime()}"></td>
       </tr>
-      <!-- Add more rows dynamically -->
     </tbody>
   </table>
-</body>
-</html>
+  <a th:href="@{/formCus}" class="btn btn-primary">Check in Reservation</a>
+</div>

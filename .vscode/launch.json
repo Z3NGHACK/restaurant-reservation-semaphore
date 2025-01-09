@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SrrApplication<srr>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "srr.srr.SrrApplication",
+            "projectName": "srr",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -1,26 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Make Reservation</title>
-</head>
-<body>
-  <h1>Make a Reservation</h1>
-  <form action="/submit-reservation" method="POST">
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required><br><br>
-
-    <label for="contact">Contact Information:</label>
-    <input type="text" id="contact" name="contact" required><br><br>
-
-    <label for="table">Table ID:</label>
-    <input type="number" id="table" name="table" required><br><br>
-
-    <label for="time">Reservation Time:</label>
-    <input type="time" id="time" name="time" required><br><br>
-
-    <button type="submit">Submit Reservation</button>
-  </form>
-</body>
-</html>
+<form th:fragment="content" th:action="@{/saveTable}" th:object="${reservations}" method="post" enctype="multipart/form-data">
+  <input type="hidden" th:field="*{tableId}">
+  <div class="form-group">
+    <label for="exampleInputEmail1">Customer name: </label>
+    <input th:field="*{customerName}" type="text" class="form-control" placeholder="Enter customer name">
+    <p th:if="@{#fields.hasErrors('customerName')}" class="text-danger" th:errors="*{customerName}"></p>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Customer phonenumber: </label>
+    <input th:field="*{phoneNumber}" type="text" class="form-control" placeholder="Enter customer phonenumber">
+    <p th:if="@{#fields.hasErrors('phoneNumber')}" class="text-danger" th:errors="*{phoneNumber}"></p>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Reservation time: </label>
+    <input th:field="*{time}" type="text" class="form-control" placeholder="Enter reservation time">
+    <p th:if="@{#fields.hasErrors('time')}" class="text-danger" th:errors="*{time}"></p>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
