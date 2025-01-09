@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SrrApplication<srr>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "srr.srr.SrrApplication",
+            "projectName": "srr",
+            "args": "",
+            "env": {
+        "DB_USERNAME": "projectDS",
+        "DB_PASSWORD": "111"
+      }
+        }
+    ]
+}
