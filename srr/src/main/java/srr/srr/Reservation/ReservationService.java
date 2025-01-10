@@ -19,8 +19,8 @@ public class ReservationService {
             semaphore.acquire(); 
             ReservationEntity reservationEntity;
 
-            if (reservationDto.getTableId() != null) {
-                reservationEntity = reservationRepo.findById(reservationDto.getTableId())
+            if (reservationDto.getId() != null) {
+                reservationEntity = reservationRepo.findById(reservationDto.getId())
                         .orElse(new ReservationEntity());
             } else {
                 reservationEntity = new ReservationEntity();

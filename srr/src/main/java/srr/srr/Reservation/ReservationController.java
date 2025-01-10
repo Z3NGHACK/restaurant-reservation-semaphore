@@ -1,5 +1,6 @@
 package srr.srr.Reservation;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,29 +10,25 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-
 
 @Controller
 public class ReservationController {
     @Autowired
     private ReservationRepo reservationRepo;
+    @Autowired
     private ReservationService reservationService;
-    List <ReservationEntity> reservation;
+    List<ReservationEntity> reservation;
 
     @GetMapping("/")
-    public String getRole(Model model) 
-    {
+    public String getRole(Model model) {
         model.addAttribute("content", "fragments/Role");
         return "index";
     }
+
     @GetMapping("/customer")
     public String customer_table(Model model) {
         reservation = reservationRepo.findAllByOrderByTimeDesc();
@@ -40,6 +37,7 @@ public class ReservationController {
         model.addAttribute("reservation", reservation);
         return "index";
     }
+
     @GetMapping("/admin")
     public String admin_table(Model model) {
         reservation = reservationRepo.findAll();
@@ -55,6 +53,7 @@ public class ReservationController {
         model.addAttribute("reservations", new ReservationDto());
         return "index";
     }
+
     @GetMapping("/formCus")
     public String formCus(Model model) {
         model.addAttribute("content", "fragments/customer/ReservTable");
@@ -63,41 +62,66 @@ public class ReservationController {
     }
 
     @PostMapping("/saveTable")
-    public String saveTable(@Valid @ModelAttribute("reservation") ReservationDto reservationDto, BindingResult bindingResult, Model model) {
+    public String saveTable(@Valid @ModelAttribute("reservations") ReservationDto reservationDto,
+            BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
-            model.addAttribute("content", "fragments/formAdmin");
+            //fix the fragment content path
+            model.addAttribute("content", "fragments/admin/CreateTableAdmin");
             return "index";
         }
 
-        ReservationEntity saveReservation = reservationService.saveReservation(reservationDto);
-        if(reservationDto.getTableId() != null){
-            saveReservation = reservationRepo.findById(reservationDto.getTableId()).orElse(new ReservationEntity());
+        ReservationEntity reservationEntity;
+        if (reservationDto.getId() != null) {
+            reservationEntity = reservationRepo.findById(reservationDto.getId()).orElse(new ReservationEntity());
+        } else {
+            reservationEntity = new ReservationEntity();
         }
-        else{
-            saveReservation = new ReservationEntity();
-        }
+        reservationEntity.setTableId(reservationDto.getTableId());
+        reservationEntity.setCustomerName(reservationDto.getCustomerName());
+        reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());
+        reservationEntity.setTime(reservationDto.getTime());
 
-        saveReservation.setCustomerName(reservationDto.getCustomerName());
-        saveReservation.setPhoneNumber(reservationDto.getPhoneNumber());
-        saveReservation.setTime(reservationDto.getTime());
-
-        reservationRepo.save(saveReservation);
-        System.out.println("Saving ReservationEntity: " + saveReservation);
+        reservationRepo.save(reservationEntity);
         return "redirect:/admin";
     }
-
-    @GetMapping("/update/{tableId}")
-    public String updateTable(@PathVariable("tableId") Long tableId, Model model) {
-        ReservationEntity reservationEntity = reservationRepo.findById(tableId).get();
-        model.addAttribute("content", "fragments/");
-        model.addAttribute("reservation", reservationEntity);
+    @GetMapping("/update/{id}")
+    public String updateTable(@PathVariable("id") Long id, Model model) {
+        ReservationEntity reservationEntity = reservationRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
+        ReservationDto reservationDto = new ReservationDto(reservationEntity);
+        model.addAttribute("content", "fragments/admin/CreateTableAdmin");
+        model.addAttribute("reservations", reservationDto);
         return "index";
     }
-    @GetMapping("/delete/{tableId}")
-    public String getMethodName(@PathVariable("tableId") Long tableId) {
-        reservationRepo.deleteById(tableId);
+
+    @PostMapping("/update/{id}")
+    public String updateProduct(@PathVariable("id") Long id, @Valid @ModelAttribute ReservationDto reservationDto,
+                                BindingResult bindingResult, Model model) throws IOException {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("content", "fragments/admin/CreateTableAdmin");
+            return "index";
+        }
+
+        ReservationEntity reservationEntity = reservationRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
+
+        reservationEntity.updateFromDTO(reservationDto);
+        reservationRepo.save(reservationEntity);
+
         return "redirect:/admin";
+    }
+
+
+    @GetMapping("/delete/{id}")
+    public String getMethodName(@PathVariable("id") Long id) {
+        if (reservationRepo.existsById(id)) {
+            reservationRepo.deleteById(id);
+            return "redirect:/admin";
+        } else {
+            throw new IllegalArgumentException("Invalid product ID: " + id);
+        }
+       
     }
 
 }

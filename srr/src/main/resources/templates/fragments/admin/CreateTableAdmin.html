@@ -1,19 +1,66 @@
-<form th:fragment="content" th:action="@{/saveTable}" th:object="${reservations}" method="post" enctype="multipart/form-data">
-    <input type="hidden" th:field="*{tableId}">
-    <div class="form-group">
-      <label for="exampleInputEmail1">Customer name: </label>
-      <input th:field="*{customerName}" type="text" class="form-control" placeholder="Enter customer name">
-      <p th:if="@{#fields.hasErrors('customerName')}" class="text-danger" th:errors="*{customerName}"></p>
-    </div>
-    <div class="form-group">
-      <label for="exampleInputPassword1">Customer phonenumber: </label>
-      <input th:field="*{phoneNumber}" type="text" class="form-control" placeholder="Enter customer phonenumber">
-      <p th:if="@{#fields.hasErrors('phoneNumber')}" class="text-danger" th:errors="*{phoneNumber}"></p>
-    </div>
-    <div class="form-group">
-      <label for="exampleInputPassword1">Reservation time: </label>
-      <input th:field="*{time}" type="text" class="form-control" placeholder="Enter reservation time">
-      <p th:if="@{#fields.hasErrors('time')}" class="text-danger" th:errors="*{time}"></p>
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+<form
+  th:fragment="content"
+  th:action="${reservations.id != null} ? @{/update/{id}(id=${reservations.id})} : @{/saveTable}"
+  th:object="${reservations}"
+  method="post"
+  enctype="multipart/form-data"
+>
+  <div class="form-group">
+    <label for="tableId">Table Id:</label>
+    <input
+      th:field="*{tableId}"
+      type="text"
+      class="form-control"
+      id="tableId"
+      placeholder="Enter TableId"
+    />
+    <p
+      th:if="${#fields.hasErrors('tableId')}"
+      class="text-danger"
+      th:errors="*{tableId}"
+    ></p>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputEmail1">Customer name: </label>
+    <input
+      th:field="*{customerName}"
+      type="text"
+      class="form-control"
+      placeholder="Enter customer name"
+    />
+    <p
+      th:if="@{#fields.hasErrors('customerName')}"
+      class="text-danger"
+      th:errors="*{customerName}"
+    ></p>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Customer phonenumber: </label>
+    <input
+      th:field="*{phoneNumber}"
+      type="text"
+      class="form-control"
+      placeholder="Enter customer phonenumber"
+    />
+    <p
+      th:if="@{#fields.hasErrors('phoneNumber')}"
+      class="text-danger"
+      th:errors="*{phoneNumber}"
+    ></p>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Reservation time: </label>
+    <input
+      th:field="*{time}"
+      type="text"
+      class="form-control"
+      placeholder="Enter reservation time"
+    />
+    <p
+      th:if="@{#fields.hasErrors('time')}"
+      class="text-danger"
+      th:errors="*{time}"
+    ></p>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
 </form>

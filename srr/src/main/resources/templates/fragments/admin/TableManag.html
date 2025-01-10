@@ -17,8 +17,8 @@
         <td th:text="${reservations.getPhoneNumber()}"></td>
         <td th:text="${reservations.getTime()}"></td>
         <td>
-          <a th:href="@{/update/{tableId}(id=${reservations.getTableId()})}" class="btn btn-warning">Update</a>
-          <a th:href="@{/delete/{tableId}(id=${reservations.getTableId()})}" class="btn btn-danger">Delete</a>
+          <a th:href="@{/update/{id}(id=${reservations.id})}"class="btn btn-warning">Update</a>
+          <a th:href="@{/delete/{id}(id=${reservations.id})}" class="btn btn-danger">Delete</a>
         </td>
       </tr>
     </tbody>
