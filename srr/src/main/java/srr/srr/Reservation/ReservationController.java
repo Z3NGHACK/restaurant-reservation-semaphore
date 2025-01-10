@@ -20,9 +20,13 @@ public class ReservationController {
     @Autowired
     private ReservationRepo reservationRepo;
     @Autowired
-    private ReservationService reservationService;
+    private final ReservationService reservationService;
     List<ReservationEntity> reservation;
 
+      // Constructor injection for ReservationService
+      public ReservationController(ReservationService reservationService) {
+        this.reservationService = reservationService;
+    }
     @GetMapping("/")
     public String getRole(Model model) {
         model.addAttribute("content", "fragments/Role");
@@ -81,6 +85,14 @@ public class ReservationController {
         } else {
             reservationEntity = new ReservationEntity();
         }
+
+        // Check if the customer already has an active reservation
+        if (reservationRepo.existsByCustomerNameAndStatus(reservationDto.getCustomerName(), ReservationStatus.PENDING)) {
+            model.addAttribute("content", "fragments/customer/ReservTable");
+            model.addAttribute("error", "You already have an active reservation.");
+            return "index";
+        }
+
         reservationEntity.setTableId(reservationDto.getTableId());
         reservationEntity.setCustomerName(reservationDto.getCustomerName());
         reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());

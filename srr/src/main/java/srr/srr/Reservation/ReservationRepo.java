@@ -11,5 +11,7 @@ public interface ReservationRepo extends JpaRepository<ReservationEntity, Long> 
     @Query("SELECT r FROM ReservationEntity r ORDER BY r.time DESC")
     List<ReservationEntity> findAllByOrderByTimeDesc();
 
+    boolean existsByCustomerNameAndStatus(String customerName, ReservationStatus pending);
+
     
 }
