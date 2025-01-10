@@ -12,6 +12,12 @@ public class ReservationService {
     public ReservationService(ReservationRepo reservationRepo) {
         this.reservationRepo = reservationRepo;
     }
+    public ReservationStatus getReservationStatus(Long id) {
+        ReservationEntity reservationEntity = reservationRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
+        return reservationEntity.getStatus();  // Returns the status of the reservation
+    }
+    
 
     @Transactional 
     public ReservationEntity saveReservation(ReservationDto reservationDto) {
@@ -19,17 +25,20 @@ public class ReservationService {
             semaphore.acquire(); 
             ReservationEntity reservationEntity;
 
-            if (reservationDto.getId() != null) {
-                reservationEntity = reservationRepo.findById(reservationDto.getId())
+            if (reservationDto.getTableId() != null) {
+                reservationEntity = reservationRepo.findById(reservationDto.getTableId())
                         .orElse(new ReservationEntity());
             } else {
                 reservationEntity = new ReservationEntity();
             }
-
+            reservationEntity.setTableId(reservationDto.getTableId());
             reservationEntity.setCustomerName(reservationDto.getCustomerName());
             reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());
             reservationEntity.setTime(reservationDto.getTime());
 
+            if (reservationEntity.getStatus() == null) {
+                reservationEntity.setStatus(ReservationStatus.PENDING);
+            }
             reservationEntity = reservationRepo.save(reservationEntity);
 
             return reservationEntity; 

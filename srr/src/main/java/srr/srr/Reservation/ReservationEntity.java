@@ -2,10 +2,13 @@ package srr.srr.Reservation;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
 
 
 @Entity
@@ -21,16 +24,26 @@ public class ReservationEntity {
     private String customerName;
     private String phoneNumber;
     private String time;
-    private String status;
+    @Enumerated(EnumType.STRING)  // Store enum as string in DB
+    private ReservationStatus status = ReservationStatus.PENDING; // Default status
+
+    public ReservationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
     public ReservationEntity() {
     }
 
-    public ReservationEntity(Long tableId, String customerName, String phoneNumber, String time, String status) {
+    public ReservationEntity(Long tableId, String customerName, String phoneNumber, String time, ReservationStatus status) {
         this.tableId = tableId;
         this.customerName = customerName;
         this.phoneNumber = phoneNumber;
         this.time = time;
-        this.status = status;
+        this.status = status != null ? status : ReservationStatus.PENDING; 
     }
     public Long getTableId() {
         return tableId;
@@ -56,12 +69,6 @@ public class ReservationEntity {
     public void setTime(String time) {
         this.time = time;
     }
-    public String getStatus() {
-        return status;
-    }
-    public void setStatus(String status) {
-        this.status = status;
-    }
     public Long getId() {
         return id;
     }
@@ -74,6 +81,10 @@ public class ReservationEntity {
         this.customerName = reservationDto.getCustomerName();
         this.phoneNumber = reservationDto.getPhoneNumber();
         this.time = reservationDto.getTime();
-        this.status = reservationDto.getStatus();
+        if (reservationDto.getStatus() != null) {
+            this.status = reservationDto.getStatus();
+        } else {
+            this.status = ReservationStatus.PENDING; // Default to PENDING
+        }
     }
 }

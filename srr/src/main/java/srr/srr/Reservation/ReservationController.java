@@ -67,7 +67,11 @@ public class ReservationController {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
             //fix the fragment content path
-            model.addAttribute("content", "fragments/admin/CreateTableAdmin");
+            if ("admin".equals(reservationDto.getUserType())) {
+                model.addAttribute("content", "fragments/admin/CreateTableAdmin");
+            } else {
+                model.addAttribute("content", "fragments/customer/ReservTable");
+            }
             return "index";
         }
 
@@ -83,12 +87,20 @@ public class ReservationController {
         reservationEntity.setTime(reservationDto.getTime());
 
         reservationRepo.save(reservationEntity);
+        // Redirect based on user type
+    if ("admin".equals(reservationDto.getUserType())) {
+        // Admin view
         return "redirect:/admin";
+    } else {
+        // Customer view
+        return "redirect:/customer";
+    }
     }
     @GetMapping("/update/{id}")
     public String updateTable(@PathVariable("id") Long id, Model model) {
         ReservationEntity reservationEntity = reservationRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
+                System.out.println("Reservation Status: " + reservationEntity.getStatus());
         ReservationDto reservationDto = new ReservationDto(reservationEntity);
         model.addAttribute("content", "fragments/admin/CreateTableAdmin");
         model.addAttribute("reservations", reservationDto);

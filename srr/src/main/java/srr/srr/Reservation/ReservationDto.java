@@ -11,16 +11,18 @@ public class ReservationDto {
     private String phoneNumber;
     @NotEmpty(message = "Time is empty")
     private String time;
-    private String status;
+    private ReservationStatus status;
+    private String userType;
 
     public ReservationDto(@NotEmpty(message = "Name customer is empty") String customerName, Long tableId,
             @NotEmpty(message = "Phone number is empty") String phoneNumber,
-            @NotEmpty(message = "Time is empty") String time, String status) {
+            @NotEmpty(message = "Time is empty") String time, String status, String userType) {
         this.customerName = customerName;
         this.tableId = tableId;
         this.phoneNumber = phoneNumber;
         this.time = time;
-        this.status = status;
+        this.status = status != null ? ReservationStatus.valueOf(status) : ReservationStatus.PENDING;
+        this.userType = userType;
     }
 
     public ReservationDto() {
@@ -75,11 +77,19 @@ public class ReservationDto {
         this.time = time;
     }
 
-    public String getStatus() {
+    public ReservationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ReservationStatus status) {
         this.status = status;
+    }
+
+    public Object getUserType() {
+            return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }
