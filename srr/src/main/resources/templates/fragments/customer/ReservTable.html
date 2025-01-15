@@ -5,6 +5,12 @@
   method="post"
   enctype="multipart/form-data"
 >
+  <!-- Error Display -->
+  <div th:if="${error}">
+    <script>
+      alert("[[${error}]]");
+    </script>
+  </div>
 <div class="form-group">
   <label for="tableId">Table Id:</label>
   <input

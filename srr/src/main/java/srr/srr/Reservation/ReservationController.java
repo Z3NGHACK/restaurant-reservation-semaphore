@@ -66,40 +66,51 @@ public class ReservationController {
     }
 
     @PostMapping("/saveTable")
-    public String saveTable(@Valid @ModelAttribute("reservations") ReservationDto reservationDto,
+public String saveTable(@Valid @ModelAttribute("reservations") ReservationDto reservationDto,
             BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
-            //fix the fragment content path
-            if ("admin".equals(reservationDto.getUserType())) {
-                model.addAttribute("content", "fragments/admin/CreateTableAdmin");
-            } else {
-                model.addAttribute("content", "fragments/customer/ReservTable");
-            }
-            return "index";
-        }
-
-        ReservationEntity reservationEntity;
-        if (reservationDto.getId() != null) {
-            reservationEntity = reservationRepo.findById(reservationDto.getId()).orElse(new ReservationEntity());
+    if (bindingResult.hasErrors()) {
+        bindingResult.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
+        // Fix the fragment content path
+        if ("admin".equals(reservationDto.getUserType())) {
+            model.addAttribute("content", "fragments/admin/CreateTableAdmin");
         } else {
-            reservationEntity = new ReservationEntity();
-        }
-
-        // Check if the customer already has an active reservation
-        if (reservationRepo.existsByCustomerNameAndStatus(reservationDto.getCustomerName(), ReservationStatus.PENDING)) {
             model.addAttribute("content", "fragments/customer/ReservTable");
-            model.addAttribute("error", "You already have an active reservation.");
-            return "index";
         }
+        return "index";
+    }
 
-        reservationEntity.setTableId(reservationDto.getTableId());
-        reservationEntity.setCustomerName(reservationDto.getCustomerName());
-        reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());
-        reservationEntity.setTime(reservationDto.getTime());
+    // Check if a reservation with the same tableId and customerName already exists
+    ReservationEntity existingReservation = reservationRepo.findByTableIdAndCustomerName(
+            reservationDto.getTableId(), reservationDto.getCustomerName());
 
-        reservationRepo.save(reservationEntity);
-        // Redirect based on user type
+    if (existingReservation != null) {
+        model.addAttribute("content", "fragments/customer/ReservTable");
+        model.addAttribute("error", "This table is already reserved by the customer.");
+        return "index";
+    }
+
+    ReservationEntity reservationEntity;
+    if (reservationDto.getId() != null) {
+        reservationEntity = reservationRepo.findById(reservationDto.getId()).orElse(new ReservationEntity());
+    } else {
+        reservationEntity = new ReservationEntity();
+    }
+
+    // Check if the customer already has an active reservation (Pending status)
+    if (reservationRepo.existsByCustomerNameAndStatus(reservationDto.getCustomerName(), ReservationStatus.PENDING)) {
+        model.addAttribute("content", "fragments/customer/ReservTable");
+        model.addAttribute("error", "You already have an active reservation.");
+        return "index";
+    }
+
+    reservationEntity.setTableId(reservationDto.getTableId());
+    reservationEntity.setCustomerName(reservationDto.getCustomerName());
+    reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());
+    reservationEntity.setTime(reservationDto.getTime());
+
+    reservationRepo.save(reservationEntity);
+
+    // Redirect based on user type
     if ("admin".equals(reservationDto.getUserType())) {
         // Admin view
         return "redirect:/admin";
@@ -107,7 +118,8 @@ public class ReservationController {
         // Customer view
         return "redirect:/customer";
     }
-    }
+}
+
     @GetMapping("/update/{id}")
     public String updateTable(@PathVariable("id") Long id, Model model) {
         ReservationEntity reservationEntity = reservationRepo.findById(id)

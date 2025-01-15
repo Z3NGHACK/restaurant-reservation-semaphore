@@ -13,5 +13,7 @@ public interface ReservationRepo extends JpaRepository<ReservationEntity, Long> 
 
     boolean existsByCustomerNameAndStatus(String customerName, ReservationStatus pending);
 
+    ReservationEntity findByTableIdAndCustomerName(Long tableId, String customerName);
+
     
 }
