@@ -3,6 +3,7 @@ package srr.srr.Reservation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 
 @Service
@@ -10,69 +11,77 @@ public class ReservationService {
 
     private final ReservationRepo reservationRepo;
     private final Semaphore semaphore = new Semaphore(1); // Allows only one concurrent reservation processing
+    private Long currentProcessingReservationId = null; // Tracks the currently processed reservation
 
     public ReservationService(ReservationRepo reservationRepo) {
         this.reservationRepo = reservationRepo;
     }
 
     /**
-     * Fetch the reservation status by ID.
+     * Confirm a reservation by ID.
      */
-    public ReservationStatus getReservationStatus(Long id) {
-        ReservationEntity reservationEntity = reservationRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
-        return reservationEntity.getStatus(); // Returns the status of the reservation
+    @Transactional
+    public String confirmReservation(Long id) {
+        try {
+            // Attempt to acquire the semaphore
+            System.out.println("Attempting to acquire semaphore...");
+            if (!semaphore.tryAcquire()) {
+                return "Another reservation is being processed. Please wait.";
+            }
+            System.out.println("Semaphore acquired. Processing reservation ID: " + id);
+
+            // Fetch the reservation and confirm it
+            ReservationEntity reservationEntity = reservationRepo.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid reservation ID: " + id));
+
+            if (reservationEntity.getStatus() != ReservationStatus.PENDING) {
+                semaphore.release(); // Release semaphore if reservation is not pending
+                return "Reservation is not in a pending state.";
+            }
+
+            reservationEntity.setStatus(ReservationStatus.CONFIRMED);
+            reservationRepo.save(reservationEntity);
+            currentProcessingReservationId = id;
+
+            return "Reservation ID " + id + " has been confirmed successfully.";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "An error occurred while confirming the reservation.";
+        }
     }
 
     /**
-     * Save or update a reservation.
+     * Release the current reservation and auto-confirm the lowest ID.
      */
     @Transactional
-    public ReservationEntity saveReservation(ReservationDto reservationDto) {
-        ReservationEntity reservationEntity = null;
+    public String releaseAndAutoConfirm() {
         try {
-            System.out.println("Attempting to acquire semaphore...");
-            semaphore.acquire();
-            System.out.println("Semaphore acquired. Available permits: " + semaphore.availablePermits());
-
-            // Check if the customer already has an active reservation
-            if (reservationRepo.existsByCustomerNameAndStatus(
-                    reservationDto.getCustomerName(), ReservationStatus.PENDING)) {
-                throw new IllegalStateException(
-                        "Customer already has an active reservation.");
+            if (currentProcessingReservationId == null) {
+                return "No reservation is currently being processed.";
             }
 
-            // Check if the reservation already exists or create a new one
-            if (reservationDto.getTableId() != null) {
-                reservationEntity = reservationRepo.findById(reservationDto.getTableId())
-                        .orElse(new ReservationEntity());
-            } else {
-                reservationEntity = new ReservationEntity();
+            System.out.println("Releasing semaphore for reservation ID: " + currentProcessingReservationId);
+            currentProcessingReservationId = null; // Clear the currently processed reservation
+            semaphore.release(); // Release the semaphore
+
+            // Auto-confirm the reservation with the lowest ID
+            Optional<ReservationEntity> nextReservation = reservationRepo.findAll().stream()
+                    .filter(reservation -> reservation.getStatus() == ReservationStatus.PENDING)
+                    .sorted((r1, r2) -> r1.getTableId().compareTo(r2.getTableId())) // Sort by lowest ID
+                    .findFirst();
+
+            if (nextReservation.isPresent()) {
+                ReservationEntity reservationEntity = nextReservation.get();
+                confirmReservation(reservationEntity.getTableId());
+                return "Released current reservation. Auto-confirmed reservation ID: " 
+                        + reservationEntity.getTableId();
             }
 
-            // Map DTO fields to Entity
-            reservationEntity.setTableId(reservationDto.getTableId());
-            reservationEntity.setCustomerName(reservationDto.getCustomerName());
-            reservationEntity.setPhoneNumber(reservationDto.getPhoneNumber());
-            reservationEntity.setTime(reservationDto.getTime());
-
-            // Default status if not provided
-            if (reservationEntity.getStatus() == null) {
-                reservationEntity.setStatus(ReservationStatus.PENDING);
-            }
-
-            // Save the entity to the database
-            reservationEntity = reservationRepo.save(reservationEntity);
-            System.out.println("Reservation saved successfully.");
-
-        } catch (InterruptedException e) {
-            System.out.println("Semaphore acquisition interrupted.");
+            return "Released current reservation. No pending reservations to auto-confirm.";
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            // Ensure the semaphore is always released
-            semaphore.release();
-            System.out.println("Semaphore released. Available permits: " + semaphore.availablePermits());
+            return "An error occurred while releasing the reservation.";
         }
-        return reservationEntity;
     }
 }

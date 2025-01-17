@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -123,14 +124,17 @@ public class ReservationController {
         }
     }
 
-    @GetMapping("/updateStatus/{id}")
-    public String updateStatus(@PathVariable("id") Long id) {
-        ReservationEntity reservationEntity = reservationRepo.findById(id).get();
-        reservationEntity.setStatus(ReservationStatus.CONFIRMED);
-        reservationRepo.save(reservationEntity);
-        return "redirect:/admin";
+    @PostMapping("/confirm/{id}")
+    public ResponseEntity<String> confirmReservation(@PathVariable Long id) {
+        String response = reservationService.confirmReservation(id);
+        return ResponseEntity.ok(response);
     }
-    
+
+    @PostMapping("/release")
+    public ResponseEntity<String> releaseAndAutoConfirm() {
+        String response = reservationService.releaseAndAutoConfirm();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/update/{id}")
     public String updateTable(@PathVariable("id") Long id, Model model) {
@@ -159,17 +163,4 @@ public class ReservationController {
 
         return "redirect:/admin";
     }
-
-
-    @GetMapping("/delete/{id}")
-    public String getMethodName(@PathVariable("id") Long id) {
-        if (reservationRepo.existsById(id)) {
-            reservationRepo.deleteById(id);
-            return "redirect:/admin";
-        } else {
-            throw new IllegalArgumentException("Invalid product ID: " + id);
-        }
-       
-    }
-
 }
