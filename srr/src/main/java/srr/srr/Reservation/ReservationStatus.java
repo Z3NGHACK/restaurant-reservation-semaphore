@@ -4,6 +4,11 @@ package srr.srr.Reservation;
         PENDING,
         CONFIRMED,
         CANCELLED,
-        COMPLETED
+        COMPLETED;
+
+        String toUpperCase() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'toUpperCase'");
+        }
     }
 

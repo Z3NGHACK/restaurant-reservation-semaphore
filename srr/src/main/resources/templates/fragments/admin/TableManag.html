@@ -1,5 +1,5 @@
 <div th:fragment="content">
-  <a th:href="@{/formAdmin}" class="btn btn-primary">Create Table</a>
+  <!-- <a th:href="@{/formAdmin}" class="btn btn-primary">Create Table</a> -->
   This is admin table managment page
   <table class="table">
     <thead>
@@ -8,6 +8,7 @@
         <th scope="col">Customer Name:</th>
         <th scope="col">Customer Phone number:</th>
         <th scope="col">Reservation time:</th>
+        <th scope="col">Status:</th>
       </tr>
     </thead>
     <tbody>
@@ -16,8 +17,10 @@
         <td th:text="${reservations.getCustomerName()}"></td>
         <td th:text="${reservations.getPhoneNumber()}"></td>
         <td th:text="${reservations.getTime()}"></td>
+        <td th:text="${reservations.getStatus()}"></td>
         <td>
           <a th:href="@{/update/{id}(id=${reservations.id})}"class="btn btn-warning">Update</a>
+          <a th:href="@{/updateStatus/{id}(id=${reservations.id})}" class="btn btn-primary">Accept</a>
           <a th:href="@{/delete/{id}(id=${reservations.id})}" class="btn btn-danger">Delete</a>
         </td>
       </tr>

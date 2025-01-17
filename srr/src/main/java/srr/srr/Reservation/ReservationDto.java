@@ -1,22 +1,26 @@
 package srr.srr.Reservation;
 
-import jakarta.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 public class ReservationDto {
     private Long id;
     @NotEmpty(message = "Name customer is empty")
     private String customerName;
     private Long tableId;
     @NotEmpty(message = "Phone number is empty")
+    @Pattern(regexp = "\\d{10}", message = "Invalid phone number format")
     private String phoneNumber;
-    @NotEmpty(message = "Time is empty")
-    private String time;
+    @Future(message = "Time must be in the future")
+    private LocalDateTime time;
     private ReservationStatus status;
     private String userType;
 
     public ReservationDto(@NotEmpty(message = "Name customer is empty") String customerName, Long tableId,
             @NotEmpty(message = "Phone number is empty") String phoneNumber,
-            @NotEmpty(message = "Time is empty") String time, String status, String userType) {
+            @NotEmpty(message = "Time is empty") LocalDateTime time, String status, String userType) {
         this.customerName = customerName;
         this.tableId = tableId;
         this.phoneNumber = phoneNumber;
@@ -69,11 +73,11 @@ public class ReservationDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 
@@ -82,7 +86,11 @@ public class ReservationDto {
     }
 
     public void setStatus(ReservationStatus status) {
-        this.status = status;
+        try {
+            this.status = ReservationStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            this.status = ReservationStatus.PENDING; // Default value
+        }
     }
 
     public Object getUserType() {

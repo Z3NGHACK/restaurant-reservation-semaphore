@@ -1,5 +1,7 @@
 package srr.srr.Reservation;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,11 +23,12 @@ public class ReservationEntity {
     @Column(length = 6)
     private Long tableId;
 
+    @Column(nullable = false)
     private String customerName;
     private String phoneNumber;
-    private String time;
-    @Enumerated(EnumType.STRING)  // Store enum as string in DB
-    private ReservationStatus status = ReservationStatus.PENDING; // Default status
+    private LocalDateTime time;
+    @Enumerated(EnumType.STRING) 
+    private ReservationStatus status = ReservationStatus.PENDING; 
 
     public ReservationStatus getStatus() {
         return status;
@@ -38,7 +41,7 @@ public class ReservationEntity {
     public ReservationEntity() {
     }
 
-    public ReservationEntity(Long tableId, String customerName, String phoneNumber, String time, ReservationStatus status) {
+    public ReservationEntity(Long tableId, String customerName, String phoneNumber, LocalDateTime time, ReservationStatus status) {
         this.tableId = tableId;
         this.customerName = customerName;
         this.phoneNumber = phoneNumber;
@@ -63,10 +66,10 @@ public class ReservationEntity {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    public String getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
-    public void setTime(String time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
     public Long getId() {
