@@ -14,13 +14,13 @@ public class ReservationDto {
     @Pattern(regexp = "\\d{10}", message = "Invalid phone number format")
     private String phoneNumber;
     @Future(message = "Time must be in the future")
-    private LocalDateTime time;
+    private String time;
     private ReservationStatus status;
     private String userType;
 
     public ReservationDto(@NotEmpty(message = "Name customer is empty") String customerName, Long tableId,
             @NotEmpty(message = "Phone number is empty") String phoneNumber,
-            @NotEmpty(message = "Time is empty") LocalDateTime time, String status, String userType) {
+            @NotEmpty(message = "Time is empty") String time, String status, String userType) {
         this.customerName = customerName;
         this.tableId = tableId;
         this.phoneNumber = phoneNumber;
@@ -73,11 +73,11 @@ public class ReservationDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public LocalDateTime getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(String time) {
         this.time = time;
     }
 
@@ -86,11 +86,7 @@ public class ReservationDto {
     }
 
     public void setStatus(ReservationStatus status) {
-        try {
-            this.status = ReservationStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            this.status = ReservationStatus.PENDING; // Default value
-        }
+        this.status = ReservationStatus.valueOf(status.toUpperCase());
     }
 
     public Object getUserType() {
