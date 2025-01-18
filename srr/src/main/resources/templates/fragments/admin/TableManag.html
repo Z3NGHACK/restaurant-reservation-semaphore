@@ -1,6 +1,10 @@
 <div th:fragment="content">
   <!-- <a th:href="@{/formAdmin}" class="btn btn-primary">Create Table</a> -->
   This is admin table managment page
+  <div th:if="${alertMessage != null}" class="alert alert-info" role="alert">
+    <span th:text="${alertMessage}"></span>
+    
+</div>
   <table class="table">
     <thead>
       <tr>
@@ -20,8 +24,14 @@
         <td th:text="${reservations.getStatus()}"></td>
         <td>
           <a th:href="@{/update/{id}(id=${reservations.id})}"class="btn btn-warning">Update</a>
-          <a th:href="@{/updateStatus/{id}(id=${reservations.id})}" class="btn btn-primary">Accept</a>
-          <a th:href="@{/release/{id}(id=${reservations.id})}" class="btn btn-danger">Release</a>
+          <form th:action="@{/confirm/{id}(id=${reservations.id})}" method="POST">
+            <button type="submit" class="btn btn-primary">Accept</button>
+          </form>
+          
+          <form th:action="@{/release/{id}(id=${reservations.id})}" method="POST">
+            <button type="submit" class="btn btn-danger">Release</button>
+          </form>
+          
         </td>
       </tr>
     </tbody>

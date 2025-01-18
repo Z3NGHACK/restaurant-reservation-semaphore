@@ -1,19 +1,16 @@
 package srr.srr.Reservation;
 
-import java.time.LocalDateTime;
-
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+
 public class ReservationDto {
     private Long id;
     @NotEmpty(message = "Name customer is empty")
     private String customerName;
     private Long tableId;
     @NotEmpty(message = "Phone number is empty")
-    @Pattern(regexp = "\\d{10}", message = "Invalid phone number format")
+    
     private String phoneNumber;
-    @Future(message = "Time must be in the future")
+
     private String time;
     private ReservationStatus status;
     private String userType;

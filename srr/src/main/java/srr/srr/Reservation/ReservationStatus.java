@@ -3,8 +3,7 @@ package srr.srr.Reservation;
     public enum ReservationStatus {
         PENDING,
         CONFIRMED,
-        CANCELLED,
-        COMPLETED;
+        RELEASED;
 
         String toUpperCase() {
             // TODO Auto-generated method stub

@@ -60,28 +60,51 @@ public class ReservationService {
             if (currentProcessingReservationId == null) {
                 return "No reservation is currently being processed.";
             }
-
-            System.out.println("Releasing semaphore for reservation ID: " + currentProcessingReservationId);
-            currentProcessingReservationId = null; // Clear the currently processed reservation
-            semaphore.release(); // Release the semaphore
-
-            // Auto-confirm the reservation with the lowest ID
+    
+            // Retrieve and delete the current reservation
+            Optional<ReservationEntity> currentReservation = reservationRepo.findById(currentProcessingReservationId);
+            if (currentReservation.isPresent()) {
+                ReservationEntity reservation = currentReservation.get();
+    
+                // Log and delete based on the status of the reservation
+                if (reservation.getStatus() == ReservationStatus.CONFIRMED) {
+                    System.out.println("Deleting confirmed reservation: " + reservation.getId());
+                } else {
+                    System.out.println("Deleting pending reservation: " + reservation.getId());
+                }
+                reservationRepo.delete(reservation);
+            }
+            currentProcessingReservationId = null; // Reset the current reservation ID
+    
+            // Auto-confirm the next pending reservation with the lowest tableId
             Optional<ReservationEntity> nextReservation = reservationRepo.findAll().stream()
                     .filter(reservation -> reservation.getStatus() == ReservationStatus.PENDING)
-                    .sorted((r1, r2) -> r1.getTableId().compareTo(r2.getTableId())) // Sort by lowest ID
+                    .sorted((r1, r2) -> r1.getId().compareTo(r2.getId())) // Sort by lowest tableId
                     .findFirst();
-
+    
             if (nextReservation.isPresent()) {
-                ReservationEntity reservationEntity = nextReservation.get();
-                confirmReservation(reservationEntity.getTableId());
-                return "Released current reservation. Auto-confirmed reservation ID: " 
-                        + reservationEntity.getTableId();
+                ReservationEntity next = nextReservation.get();
+    
+                // Confirm the next reservation
+                next.setStatus(ReservationStatus.CONFIRMED);
+                reservationRepo.save(next); // Save changes to the database
+    
+                // Log the auto-confirmation
+                System.out.println("Auto-confirmed reservation ID: " + next.getId());
+                currentProcessingReservationId = next.getId(); // Update the currently processed reservation ID
+                return "Released current reservation. Auto-confirmed reservation ID: " + next.getTableId();
             }
-
+    
             return "Released current reservation. No pending reservations to auto-confirm.";
         } catch (Exception e) {
             e.printStackTrace();
             return "An error occurred while releasing the reservation.";
         }
+        finally {
+            // Ensure semaphore is released if held
+            semaphore.release();
+        }
     }
+    
+
 }
